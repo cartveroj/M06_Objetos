@@ -1,78 +1,69 @@
 
 //import * as Cicle from './cicles.js';
 class Cicle{
-    numEdicions = 0;
     constructor(nom, categoria, numAlumnes,abreviatura){
         this.nom = nom;
         this.categoria = categoria;
         this.numAlumnes = numAlumnes;
         this.abreviatura = abreviatura;
         this.numEdicions = 0;
+        this.arrayModuls = [];
     }
 
-    getNom(){
-        return this.nom;
-    }
-    getCategoria(){
-        return this.categoria;
-    }
-    getNumAlumnes(){
-        return this.numAlumnes;
-    }
-    getAbreviatura(){
-        return this.abreviatura;
-    }
-    getNumEdiciones(){
-        return this.numEdicions;
-    }
+   incrementeNumEdiciones(){
+    this.numEdicions++;
+   }
+   añadirModul(modul){
+    this.arrayModuls.push(modul);
+   }
+   toString(){
+    return `nom: ${this.nom}\ncategoria: ${this.categoria}\nnumAlumnes: ${this.numAlumnes}\nabreviatura: ${this.abreviatura}`
+   }
 
-    setNom(nomN){
-        this.nom = nomN;
+}
+
+class Modul{
+    constructor(cicle, nom, num, hores){
+        this.cicle = cicle;
+        this.nom = nom;
+        this.num = num;
+        this.hores = hores;
+        
     }
-    setCategoria(categoriaN){
-        this.categoria = categoriaN;
-    }
-    setNumAlumnes(numAlumnesN){
-        this.numAlumnes = numAlumnesN;
-    }
-    setAbreviatura(abreviaturaN){
-        this.abreviatura = abreviaturaN;
-    }
-    setNumEdiciones(numero){
-        this.numEdicions=numero;
+    toString(){
+        return `MP{${num}}. {${nom}} ({${hores}}h)`
     }
 }
 
 let llistatCicles = [];
+let cicle;
+let modul;
 
 function afegirCicle(){
     let nom = document.getElementById("cicle_nom").value;
     let categoria = document.getElementById("cicle_categoria").value;
     let numAlumnes = document.getElementById("cicle_alumnes").value;
     let abreviatura = document.getElementById("cicle_abr").value;
-
-    let cicle = new Cicle(nom,categoria,numAlumnes,abreviatura);
-    // {
-    //     nom: nom, 
-    //     categoria: categoria, 
-    //     numAlumnes: numAlumnes, 
-    //     abreviatura: abreviatura
-    // }
-    console.log(cicle);
-    let numEdiciones = 0;
+    
     if(document.getElementById("editCicle").value === "-1"){
         //Afegim el cicle al llistat
+        cicle = new Cicle(nom,categoria,numAlumnes,abreviatura);
         llistatCicles.push(cicle);
     }else{
         //Editar cicle
-        cicle.setNom(nom);
-        cicle.setCategoria(categoria);
-        cicle.setNumAlumnes(numAlumnes);
-        cicle.setAbreviatura(abreviatura);
-
-        let i= llistatCicles.indexOf(cicle);
-        cicle.setNumEdiciones(numEdiciones++);
-         editCicle(i);
+        let index = parseInt(document.getElementById("editCicle").value);
+        if (!isNaN(index) && index >= 0 && index < llistatCicles.length) {
+            cicle = llistatCicles[index];
+            cicle.nom = nom;
+            cicle.categoria = categoria;
+            cicle.numAlumnes = numAlumnes;
+            cicle.abreviatura = abreviatura;
+            cicle.incrementeNumEdiciones();
+            console.log(cicle);
+           
+        } else {
+            console.error("Índice de edición no válido");
+        }
     }
     
     //Actualitzem el selector
@@ -87,15 +78,32 @@ function afegirCicle(){
     document.getElementById("editCicle").value=-1;
 }
 
+function objToString(objeto){
+    return `cicle: ${objeto.nom} \ncategoria: ${objeto.categoria}\nnumAlumnes: ${objeto.numAlumnes}\nabreviatura: ${objeto.abreviatura}`;
+}
+
+function afegirModulAlCicle(modul){
+    cicle.añadirModul(modul);
+}
+
+function calculHores(i){
+   let cicleModul = llistatCicles[i];
+   console.log(cicleModul);
+   cicleModul.forEach((element)=>{
+    console.log(element.arrayModuls);
+   });
+}
+
 function afegirModul(){
-    let cicle = document.getElementById("modul_cicle").value;
+    let cicleN = document.getElementById("modul_cicle").value;
     let modul_nom = document.getElementById("modul_nom").value;
     let modul_num = document.getElementById("modul_num").value;
     let modul_hores = document.getElementById("modul_hores").value;
 
-    let modul = {cicle: cicle, nom: modul_nom, num: modul_num, hores: modul_hores}
+    modul = new Modul(cicleN, modul_nom, modul_num, modul_hores);
     console.log(modul);
-
+    //Añadimos el modul al array del cicle
+    afegirModulAlCicle(modul);
     //Printem la llista
     printLlistat(llistatCicles);
 
@@ -123,6 +131,14 @@ function printLlistat (llistat){
     document.getElementById("llistat").innerHTML=str;
 }
 
+//Funció per eliminar un cicle
+function removeCicle(i){
+   
+    llistatCicles.splice(i,1);
+    printLlistat(llistatCicles);
+    console.log(llistatCicles);
+}
+
 //Funció per actualitzar el selector de cicles cada vegada que afegim un cicle
 function actualitzarSelector(){
     let select = document.getElementById('modul_cicle');
@@ -133,12 +149,12 @@ function actualitzarSelector(){
         opt.text = element.nom;
         select.appendChild(opt);
     });
-}
 
-//Funció per eliminar un cicle
-function removeCicle(i){
 
 }
+
+
+
 
 //Funció per editar un cicle
 function editCicle(i){
@@ -148,9 +164,6 @@ function editCicle(i){
     document.getElementById("cicle_abr").value = llistatCicles[i].abreviatura;
 
     document.getElementById("editCicle").value=i;
-
-    
-
 
 }
 
